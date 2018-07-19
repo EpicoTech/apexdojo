@@ -20,6 +20,7 @@ As of now the SecureSelectList plugin covers:
 * LOV -SQL Query
 * LOV -PL/SQL function body returning sql query
 * LOV -Cascading
+* Interactive Grid
 * Custom Error Message
 
 ### Prerequisites
