@@ -24,15 +24,14 @@ end;
 prompt --application/shared_components/plugins/item_type/secureselectlist
 begin
 wwv_flow_api.create_plugin(
- p_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4056605210935732)
 ,p_plugin_type=>'ITEM TYPE'
 ,p_name=>'SECURESELECTLIST'
 ,p_display_name=>'SecureSelectList'
 ,p_supported_ui_types=>'DESKTOP'
 ,p_supported_component_types=>'APEX_APPLICATION_PAGE_ITEMS:APEX_APPL_PAGE_IG_COLUMNS'
 ,p_plsql_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'    ',
-'procedure add_js (p_item   in            apex_plugin.t_item )',
+' procedure add_js (p_item   in            apex_plugin.t_item )',
 '    IS',
 ' /******************************************************************************',
 ' Name: add_js ><(((*>~',
@@ -40,8 +39,6 @@ wwv_flow_api.create_plugin(
 ' Purpose: Render cascading lov',
 ' ******************************************************************************/',
 'BEGIN',
-unistr('--testfunktion f\00F6r javascript'),
-'',
 'apex_javascript.add_onload_code (',
 '    p_code =>     ''''||',
 '                  ''{apex.widget.selectList("#''||p_item.name||''",''||',
@@ -59,7 +56,12 @@ unistr('--testfunktion f\00F6r javascript'),
 '    p_plugin in            apex_plugin.t_plugin,',
 '    p_param  in            apex_plugin.t_item_ajax_param,',
 '    p_result in out nocopy apex_plugin.t_item_ajax_result )',
-'   ',
+'/******************************************************************************',
+' Name: ajax  ><(((*>~',
+' Input: apex item',
+' Returns:json ',
+' Purpose: populate cascading lov',
+' ******************************************************************************/   ',
 '    is ',
 '',
 '    lv_parent_item varchar2(100);',
@@ -67,6 +69,7 @@ unistr('--testfunktion f\00F6r javascript'),
 '    lv_display_values_arr  apex_application_global.vc_arr2;',
 '    lv_return_values_arr   apex_application_global.vc_arr2;',
 '    begin',
+'   ',
 '      begin',
 '        select lov_definition',
 '              ,lov_cascade_parent_items',
@@ -155,7 +158,6 @@ unistr('--testfunktion f\00F6r javascript'),
 'IS ',
 '    lv_string VARCHAR2(4000); ',
 'BEGIN ',
-'',
 '    lv_string := substr(p_string,instr(upper(p_string),''STATIC:'')+7);',
 '    SELECT Max(CASE WHEN rn / 2 = Trunc(rn / 2) THEN y.str END) even, ',
 '           Max(CASE WHEN rn / 2 != Trunc(rn / 2) THEN y.str END) odd ',
@@ -216,7 +218,7 @@ unistr('--testfunktion f\00F6r javascript'),
 '        p_param    IN apex_plugin.t_item_render_param,',
 '        p_result   IN OUT NOCOPY apex_plugin.t_item_render_result',
 '    ) IS',
-'    CURSOR c_get_sql (p_item_name VARCHAR2) ',
+'    CURSOR c_get_sql (p_item_name VARCHAR2,p_ig_col_id NUMBER) ',
 '    IS --page item ',
 '     SELECT lov_definition, ',
 '            Instr(lov_definition, ''STATIC'', 1, 1) is_static,',
@@ -238,7 +240,7 @@ unistr('--testfunktion f\00F6r javascript'),
 '    FROM   apex_appl_page_ig_columns',
 '    WHERE  application_id = V(''APP_ID'') ',
 '           AND page_id = V(''APP_PAGE_ID'') ',
-'           AND column_id = Upper(p_item_name);',
+'           AND column_id = p_ig_col_id;',
 '        ',
 '    lv_item_name            wwv_flow_plugin_api.t_input_name;',
 '    lv_sql                  VARCHAR2(4000);',
@@ -249,19 +251,25 @@ unistr('--testfunktion f\00F6r javascript'),
 '    lv_display_values_arr   apex_application_global.vc_arr2;',
 '    lv_return_values_arr    apex_application_global.vc_arr2;',
 '    lv_parent_item          VARCHAR2(30);   ',
+'    lv_ig_col_id            NUMBER;',
 '    lv_item apex_plugin.t_item :=p_item;',
 'BEGIN',
-'',
 '   --get item_name , if IG you get the column_id',
+'    ',
+'   IF p_item.component_type_id=apex_component.c_comp_type_ig_column',
+'   THEN',
+'    lv_ig_col_id :=p_item.id;',
+'   ELSE',
 '    lv_item_name := apex_plugin.get_input_name_for_item;',
+'   END IF;',
 '    -- start to render',
 '    sys.htp.prn(''<select ''',
-'                || wwv_flow_plugin_util.get_element_attributes(p_item,lv_item_name)',
+'                || wwv_flow_plugin_util.get_element_attributes(lv_item,lv_item_name)',
 '                || ''class="selectlist&#x20;apex-item-select" size="1">'');',
 '        ',
 '',
 '     --get the statment and determine the type',
-'    FOR r1 IN c_get_sql(lv_item_name) LOOP ',
+'    FOR r1 IN c_get_sql(lv_item_name,lv_ig_col_id) LOOP ',
 '        IF r1.is_static = 1 THEN ',
 '          lv_static := TRUE; ',
 '        ELSIF r1.is_static_lov=''.'' THEN',
@@ -305,7 +313,6 @@ unistr('--testfunktion f\00F6r javascript'),
 '    END LOOP; ',
 '  ',
 '  sys.htp.prn(''</select>'');',
-'',
 'end render;',
 '/******************************************************************************',
 ' Name: validation ><(((*>~',
@@ -319,9 +326,9 @@ unistr('--testfunktion f\00F6r javascript'),
 '        p_result IN OUT nocopy apex_plugin.t_page_item_validation_result',
 '    ) IS',
 '       ',
-'    CURSOR c_get_sql (p_item_name VARCHAR2) ',
+'    CURSOR c_get_sql (p_item_name VARCHAR2,p_ig_col_id NUMBER) ',
 '    IS ',
-'    SELECT lov_definition, ',
+'    SELECT  lov_definition, ',
 '            Instr(lov_definition, ''STATIC'', 1, 1) is_static,',
 '            (select ''true'' from dual where  regexp_like(lov_definition, ''^(.*\s+)?return(\s+.*)?$'', ''i'') )is_plsql,',
 '            Regexp_substr(lov_definition, ''^(.)'') is_static_lov,',
@@ -341,9 +348,10 @@ unistr('--testfunktion f\00F6r javascript'),
 '    FROM   apex_appl_page_ig_columns',
 '    WHERE  application_id = V(''APP_ID'') ',
 '           AND page_id = V(''APP_PAGE_ID'') ',
-'           AND column_id = Upper(p_item_name);  ',
+'           AND column_id = p_ig_col_id;  ',
 '        ',
 '    lv_item_name          wwv_flow_plugin_api.t_input_name; ',
+'    lv_type_id number;',
 '    lv_sql                VARCHAR2(4000); ',
 '    lv_static             BOOLEAN DEFAULT FALSE; ',
 '    lv_plsql              BOOLEAN DEFAULT FALSE;',
@@ -355,12 +363,17 @@ unistr('--testfunktion f\00F6r javascript'),
 '    lv_count              NUMBER DEFAULT 0; ',
 '    lv_custom_error       VARCHAR2(255) := p_item.attribute_01;',
 '    lv_parent_item        VARCHAR2(30);',
+'    lv_ig_col_id          NUMBER;',
 '    ',
 'BEGIN',
-'    lv_item_name:=p_item.name;',
-'     ',
-'      --get the statment and determine the type',
-'    FOR r1 IN c_get_sql(lv_item_name) LOOP ',
+'  IF p_item.component_type_id=apex_component.c_comp_type_ig_column',
+'   THEN',
+'    lv_ig_col_id :=p_item.id;',
+'  ELSE',
+'    lv_item_name := p_item.name;',
+'  END IF;',
+'      --get the statment and determine the lov type',
+'    FOR r1 IN c_get_sql(lv_item_name,lv_ig_col_id) LOOP ',
 '        IF r1.is_static = 1 THEN ',
 '          lv_static := TRUE; ',
 '        ELSIF r1.is_static_lov=''.'' THEN',
@@ -375,7 +388,7 @@ unistr('--testfunktion f\00F6r javascript'),
 '    END LOOP; ',
 '',
 '    IF lv_static THEN',
-'       get_static_values(lv_sql, lv_display_values_arr, lv_return_values_arr);',
+'         get_static_values(lv_sql, lv_display_values_arr, lv_return_values_arr);',
 '    ELSIF  lv_plsql THEN',
 '     get_plsql_values(lv_sql, lv_display_values_arr, lv_return_values_arr);',
 '    ELSIF lv_static_lov THEN',
@@ -385,6 +398,7 @@ unistr('--testfunktion f\00F6r javascript'),
 '      EXECUTE IMMEDIATE lv_sql BULK COLLECT INTO lv_display_values_arr, ',
 '                                                 lv_return_values_arr ',
 '                                                 USING  V(lv_parent_item); ',
+'      ',
 '    ELSE',
 '      lv_sql := Replace(lv_sql, '';'', ''''); ',
 '      EXECUTE IMMEDIATE lv_sql BULK COLLECT INTO lv_display_values_arr, ',
@@ -393,11 +407,15 @@ unistr('--testfunktion f\00F6r javascript'),
 '      ',
 '     ',
 '    --Compare the current value with the selectlist ',
+'    IF lv_return_values_arr.COUNT > 0 THEN',
 '    FOR i IN 1..lv_return_values_arr.COUNT LOOP ',
 '        IF NOT v(lv_item_name) = Lv_return_values_arr(i) THEN ',
 '          lv_match := lv_match + 1; ',
 '        END IF; ',
 '    END LOOP; ',
+'    ELSE',
+'    lv_match:=-1;',
+'    END IF;',
 '    ',
 '    lv_count := lv_return_values_arr.COUNT;',
 '   ',
@@ -418,8 +436,8 @@ unistr('--testfunktion f\00F6r javascript'),
 ,p_files_version=>2
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(1964982253465608)
-,p_plugin_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4056803213935735)
+,p_plugin_id=>wwv_flow_api.id(4056605210935732)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>1
 ,p_display_sequence=>10
@@ -430,8 +448,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(1965370588465610)
-,p_plugin_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4057191548935737)
+,p_plugin_id=>wwv_flow_api.id(4056605210935732)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>2
 ,p_display_sequence=>20
@@ -441,8 +459,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(1965721246465610)
-,p_plugin_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4057542206935737)
+,p_plugin_id=>wwv_flow_api.id(4056605210935732)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>3
 ,p_display_sequence=>30
@@ -453,8 +471,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(1966199438465610)
-,p_plugin_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4058020398935737)
+,p_plugin_id=>wwv_flow_api.id(4056605210935732)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>4
 ,p_display_sequence=>40
@@ -464,8 +482,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_std_attribute(
- p_id=>wwv_flow_api.id(1967166022465613)
-,p_plugin_id=>wwv_flow_api.id(1964784250465605)
+ p_id=>wwv_flow_api.id(4058986982935740)
+,p_plugin_id=>wwv_flow_api.id(4056605210935732)
 ,p_name=>'LOV'
 );
 end;
