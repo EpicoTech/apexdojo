@@ -24,7 +24,7 @@ As of now the SecureSelectList plugin covers:
 * Custom Error Message
 
 ### Prerequisites
-* APEX 5.X or newer.
+* This have been developed and tested on APEX version 18.1.0.00.45
 ### Installation
 1. Download the plugin
 2. Open/create your application in the APEX builder
