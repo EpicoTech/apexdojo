@@ -24,7 +24,7 @@ end;
 prompt --application/shared_components/plugins/item_type/secureselectlist
 begin
 wwv_flow_api.create_plugin(
- p_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6214768511788133)
 ,p_plugin_type=>'ITEM TYPE'
 ,p_name=>'SECURESELECTLIST'
 ,p_display_name=>'SecureSelectList'
@@ -71,7 +71,7 @@ wwv_flow_api.create_plugin(
 '    begin',
 '   ',
 '      begin',
-'        select lov_definition',
+'        select Replace(lov_definition,'';'', '''')',
 '              ,lov_cascade_parent_items',
 '          into lv_sql',
 '              ,lv_parent_item',
@@ -84,7 +84,7 @@ wwv_flow_api.create_plugin(
 '           lv_sql         := null;',
 '           lv_parent_item := null;',
 '      end;',
-'',
+'    ',
 '    EXECUTE IMMEDIATE lv_sql BULK COLLECT INTO   lv_display_values_arr',
 '                                                ,lv_return_values_arr ',
 '                                           USING v(lv_parent_item); ',
@@ -436,8 +436,8 @@ wwv_flow_api.create_plugin(
 ,p_files_version=>2
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(4056803213935735)
-,p_plugin_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6214966514788136)
+,p_plugin_id=>wwv_flow_api.id(6214768511788133)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>1
 ,p_display_sequence=>10
@@ -448,8 +448,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(4057191548935737)
-,p_plugin_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6215354849788138)
+,p_plugin_id=>wwv_flow_api.id(6214768511788133)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>2
 ,p_display_sequence=>20
@@ -459,8 +459,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(4057542206935737)
-,p_plugin_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6215705507788138)
+,p_plugin_id=>wwv_flow_api.id(6214768511788133)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>3
 ,p_display_sequence=>30
@@ -471,8 +471,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(4058020398935737)
-,p_plugin_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6216183699788138)
+,p_plugin_id=>wwv_flow_api.id(6214768511788133)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>4
 ,p_display_sequence=>40
@@ -482,8 +482,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_translatable=>false
 );
 wwv_flow_api.create_plugin_std_attribute(
- p_id=>wwv_flow_api.id(4058986982935740)
-,p_plugin_id=>wwv_flow_api.id(4056605210935732)
+ p_id=>wwv_flow_api.id(6217150283788141)
+,p_plugin_id=>wwv_flow_api.id(6214768511788133)
 ,p_name=>'LOV'
 );
 end;
